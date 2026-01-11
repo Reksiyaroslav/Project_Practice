@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Главная страница</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.6.0/css/all.css">
+  <link rel="stylesheet" href="{% static 'css/styleForMain.css'%}" />
+  <style>
+    body{
+    background-image : url("{% static '/img/mainimg.png' %}");
+                    
+                    background-repeat: no-repeat;
+                    height:110vh;
+                    background-size:200vh;
+                    background-position:center;
+    }
+    </style>
+</head>
+<body>
+
+     <header>
+    <div class="calculateCalory-button">
+      <button class="unified-button" type="button" onclick="window.location.href='{% url 'calculator:calculator' %}'">
+        Калькулятор калорий
+      </button>
+
+    </div>
+
+    <div class="headerNav-buttons">
+      <button class="unified-button" onclick="window.open('#')">Книга рецептов</button>
+      <button class="unified-button" onclick="window.location.href='{% url 'menu_url:menu' %}'">Меню</button>
+      <button class="unified-button" onclick="window.open('#')">Справочник продуктов</button>
+    </div>
+
+    <div class="auth-buttons">
+      {% if user.is_authenticated %}
+        <div class="Headered">
+            <p>Добро пожаловать, {{ user.first_name }} {{ user.last_name }}!</p>
+            <a href="{% url 'users:account' pk=user.id %}">Профиль</a>
+            <form method="post" action="{% url 'users:logout' %}" style="display:inline-block;">
+                {% csrf_token %}
+                <button type="submit" style="display:inline-block; background: none; border: none; color: inherit; cursor: pointer;">Выйти</button>
+            </form>
+        </div>
+      {% else %}
+        <div id="auth">
+            <a href="{% url 'users:login' %}">Войти</a>
+            <a href="{% url 'users:registration' %}">Регистрация</a>
+        </div>
+      {% endif %}
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <div class="ad-left">
+        <p>Реклама слева</p>
+      </div>
+
+      <div class="center">
+        <div class="dropdown-box">
+          {% if user.is_authenticated %}
+            <form method="post">
+              {% csrf_token %}
+              <label for="card-select">Выберите карточку пользователя:</label><br>
+              <select name="card_id" id="card-select" onchange="this.form.submit()">
+                <option disabled {% if not selected_card %}selected{% endif %}>-- Выберите --</option>
+                {% for card in cards %}
+                  <option value="{{ card.id }}" {% if selected_card and card.id == selected_card.id %}selected{% endif %}>
+                    {{ card.name }} (Рост: {{ card.height }}, Вес: {{ card.weight }}, Болезнь: {{ card.get_sickness_display }})
+                  </option>
+                {% endfor %}
+              </select>
+            </form>
+            {% if selected_card %}
+              <div style="margin-top: 20px;">
+                <strong>Текущая карточка:</strong><br>
+                Имя: {{ selected_card.name }}<br>
+                Рост: {{ selected_card.height }} см<br>
+                Вес: {{ selected_card.weight }} кг<br>
+                Болезнь: {{ selected_card.get_sickness_display }}
+              </div>
+            {% endif %}
+            {% if messages %}
+              <ul class="messages">
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% else %}
+            <p>Войдите, чтобы выбрать карточку пользователя.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ad-right">
+        <p>Реклама справа</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footerNav-buttons">
+      <button class="unified-button" onclick="window.open('#')">Отчёты-графики</button>
+      <button class="unified-button" onclick="window.open('#')">Закупка продуктов</button>
+    </div>
+
+    <div class="doctorlink-button">
+      <button class="unified-button" type="button" onclick="window.open('https://ya.ru/')">
+        Ссылка на доктора
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    function navigate(select) {
+      const value = select.value;
+      if (value) {
+        window.location.href = value;
+      }
+    }
+
+    
+  </script>
+
+</body>
+</html>
